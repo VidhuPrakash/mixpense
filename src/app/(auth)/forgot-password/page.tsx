@@ -1,11 +1,14 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { authClient } from "../../../../lib/auth-client";
-import { Mail } from "lucide-react";
+
+const mono: React.CSSProperties = {
+  fontFamily: "var(--font-dm-mono), 'Courier New', monospace",
+};
+const display: React.CSSProperties = {
+  fontFamily: "var(--font-fraunces), Georgia, serif",
+};
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -31,83 +34,175 @@ export default function ForgotPasswordPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
+      className="ledger-page"
       style={{
-        background:
-          "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "48px 20px",
       }}
     >
-      <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
-        <CardHeader>
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">
-              Forgot password
-            </h1>
-            <p className="text-sm text-white/60">
-              Enter your email and we&apos;ll send a reset link
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        {/* ── HEADER ── */}
+        <div
+          className="ledger-slide-down"
+          style={{ textAlign: "center", paddingBottom: 12 }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 10 }}>
+            Mixpense
+          </p>
+          <h1
+            style={{
+              ...display,
+              fontSize: 36,
+              fontWeight: 500,
+              color: "#e8e6df",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              margin: "0 0 10px",
+            }}
+          >
+            Reset your
+            <br />
+            password.
+          </h1>
+        </div>
+
+        {/* ── CARD ── */}
+        <div
+          className="ledger-fade-up ledger-card"
+          style={{ padding: "28px 28px", animationDelay: "0.08s" }}
+        >
           {sent ? (
-            <div className="space-y-4 text-center">
-              <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-cyan-400/10 ring-1 ring-cyan-400/30">
-                <Mail className="size-6 text-cyan-400" />
+            <div style={{ textAlign: "center" }}>
+              <p className="ledger-label" style={{ marginBottom: 20 }}>
+                Link Sent
+              </p>
+              <div
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: "50%",
+                  border: "0.5px solid rgba(201,149,58,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 20px",
+                }}
+              >
+                <span style={{ ...mono, fontSize: 18, color: "#c9953a" }}>
+                  ✓
+                </span>
               </div>
-              <p className="text-sm text-white/70">
+              <p
+                style={{
+                  ...mono,
+                  fontSize: 12,
+                  color: "#9a9890",
+                  lineHeight: 1.6,
+                  marginBottom: 22,
+                }}
+              >
                 If an account exists for{" "}
-                <span className="text-white font-medium">{email}</span>, a
-                password reset link has been sent.
+                <span style={{ color: "#e8e6df" }}>{email}</span>, a reset link
+                has been sent.
               </p>
               <Link
                 href="/"
-                className="block text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                style={{
+                  ...mono,
+                  fontSize: 10,
+                  color: "#c9953a",
+                  textDecoration: "none",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                }}
               >
-                Back to sign in
+                Back to Sign In
               </Link>
             </div>
           ) : (
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-white/80">
-                  Email
-                </label>
-                <div className="relative">
-                  <Input
-                    id="email"
+            <>
+              <p className="ledger-label" style={{ marginBottom: 8 }}>
+                Forgot Password
+              </p>
+              <p
+                style={{
+                  ...mono,
+                  fontSize: 11,
+                  color: "#5e5c57",
+                  marginBottom: 22,
+                  lineHeight: 1.6,
+                }}
+              >
+                Enter your email and we&apos;ll send a reset link.
+              </p>
+              <form
+                onSubmit={onSubmit}
+                style={{ display: "flex", flexDirection: "column", gap: 14 }}
+              >
+                <div>
+                  <p className="ledger-label" style={{ marginBottom: 6 }}>
+                    Email
+                  </p>
+                  <input
                     type="email"
-                    placeholder="jane@example.com"
+                    className="ledger-input"
+                    style={{ width: "100%", padding: "10px 12px" }}
+                    placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
+                    autoComplete="email"
+                    required
                   />
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
                 </div>
-              </div>
 
-              {err && <p className="text-sm text-rose-400">{err}</p>}
+                {err && (
+                  <p style={{ ...mono, fontSize: 11, color: "#c0473a" }}>
+                    {err}
+                  </p>
+                )}
 
-              <Button
-                type="submit"
-                className="w-full bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium shadow-[0_0_25px_rgba(34,211,238,0.35)]"
-                disabled={loading || !email}
-              >
-                {loading ? "Sending..." : "Send reset link"}
-              </Button>
-
-              <p className="text-xs text-white/50 text-center">
-                Remembered it?{" "}
-                <Link
-                  href="/"
-                  className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                <button
+                  type="submit"
+                  className="ledger-btn-primary"
+                  style={{ width: "100%", padding: "12px", marginTop: 2 }}
+                  disabled={loading || !email}
                 >
-                  Back to sign in
-                </Link>
-              </p>
-            </form>
+                  {loading ? "Sending…" : "Send Reset Link"}
+                </button>
+              </form>
+            </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* ── BACK LINK ── */}
+        {!sent && (
+          <div
+            className="ledger-fade-up"
+            style={{ textAlign: "center", animationDelay: "0.16s" }}
+          >
+            <p style={{ ...mono, fontSize: 11, color: "#5e5c57" }}>
+              Remembered it?{" "}
+              <Link
+                href="/"
+                style={{ color: "#c9953a", textDecoration: "none" }}
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

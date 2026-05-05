@@ -2,11 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { authClient } from "../../../lib/auth-client";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+
+const mono: React.CSSProperties = {
+  fontFamily: "var(--font-dm-mono), 'Courier New', monospace",
+};
+const display: React.CSSProperties = {
+  fontFamily: "var(--font-fraunces), Georgia, serif",
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,102 +38,171 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
+      className="ledger-page"
       style={{
-        background:
-          "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "48px 20px",
       }}
     >
-      <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
-        <CardHeader>
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Sign in</h1>
-            <p className="text-sm text-white/60">Welcome back to Mixpense</p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-white/80"
-              >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        {/* ── BRAND ── */}
+        <div
+          className="ledger-slide-down"
+          style={{ textAlign: "center", paddingBottom: 16 }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 14 }}>
+            Mixpense
+          </p>
+          <h1
+            style={{
+              ...display,
+              fontSize: 44,
+              fontWeight: 500,
+              color: "#e8e6df",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              margin: "0 0 14px",
+            }}
+          >
+            Track what
+            <br />
+            you spend.
+          </h1>
+          <p style={{ ...mono, fontSize: 11, color: "#5e5c57" }}>
+            Personal expense ledger
+          </p>
+        </div>
+
+        {/* ── FORM CARD ── */}
+        <div
+          className="ledger-fade-up ledger-card"
+          style={{ padding: "28px 28px", animationDelay: "0.08s" }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 22 }}>
+            Sign In
+          </p>
+          <form
+            onSubmit={onSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: 14 }}
+          >
+            <div>
+              <p className="ledger-label" style={{ marginBottom: 6 }}>
                 Email
-              </label>
-              <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="jane@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-              </div>
+              </p>
+              <input
+                type="email"
+                className="ledger-input"
+                style={{ width: "100%", padding: "10px 12px" }}
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-white/80"
-                >
-                  Password
-                </label>
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  marginBottom: 6,
+                }}
+              >
+                <p className="ledger-label">Password</p>
                 <Link
                   href="/forgot-password"
-                  className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+                  style={{
+                    ...mono,
+                    fontSize: 10,
+                    color: "#c9953a",
+                    textDecoration: "none",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
                 >
-                  Forgot password?
+                  Forgot?
                 </Link>
               </div>
-              <div className="relative">
-                <Input
+              <div style={{ position: "relative" }}>
+                <input
                   type={showPwd ? "text" : "password"}
+                  className="ledger-input"
+                  style={{ width: "100%", padding: "10px 52px 10px 12px" }}
                   placeholder="Your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
+                  autoComplete="current-password"
+                  required
                 />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
                 <button
                   type="button"
-                  aria-label={showPwd ? "Hide password" : "Show password"}
                   onClick={() => setShowPwd((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-1 text-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
+                  aria-label={showPwd ? "Hide password" : "Show password"}
+                  style={{
+                    position: "absolute",
+                    right: 12,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    padding: 0,
+                    color: "#5e5c57",
+                  }}
                 >
-                  {showPwd ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
+                  <span
+                    style={{ ...mono, fontSize: 9, letterSpacing: "0.1em" }}
+                  >
+                    {showPwd ? "HIDE" : "SHOW"}
+                  </span>
                 </button>
               </div>
             </div>
 
-            {err && <p className="text-sm text-rose-400">{err}</p>}
+            {err && (
+              <p style={{ ...mono, fontSize: 11, color: "#c0473a" }}>{err}</p>
+            )}
 
-            <Button
+            <button
               type="submit"
-              className="w-full bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium shadow-[0_0_25px_rgba(34,211,238,0.35)]"
+              className="ledger-btn-primary"
+              style={{ width: "100%", padding: "12px", marginTop: 2 }}
               disabled={loading || !email || !password}
             >
-              {loading ? "Signing in..." : "Sign in"}
-            </Button>
-
-            <p className="text-xs text-white/50 text-center">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
-              >
-                Create account
-              </Link>
-            </p>
+              {loading ? "Signing in…" : "Sign In"}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* ── REGISTER LINK ── */}
+        <div
+          className="ledger-fade-up"
+          style={{ textAlign: "center", animationDelay: "0.16s" }}
+        >
+          <p style={{ ...mono, fontSize: 11, color: "#5e5c57" }}>
+            No account?{" "}
+            <Link
+              href="/register"
+              style={{ color: "#c9953a", textDecoration: "none" }}
+            >
+              Create one
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -120,3 +120,257 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ─── Dark Luxury Ledger ───────────────────────────────── */
+
+@keyframes ledger-slide-down {
+  from {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ledger-fade-up {
+  from {
+    transform: translateY(18px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes ledger-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(500%);
+  }
+}
+
+.ledger-page {
+  background: #0f0f0d;
+  min-height: 100vh;
+}
+
+.ledger-card {
+  background: #161614;
+  border: 0.5px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+}
+
+.ledger-surface {
+  background: #1e1e1b;
+  border: 0.5px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+}
+
+.ledger-label {
+  font-family: var(--font-dm-mono), "Courier New", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #5e5c57;
+  margin: 0;
+}
+
+.ledger-slide-down {
+  animation: ledger-slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ledger-fade-up {
+  animation: ledger-fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.ledger-input {
+  font-family: var(--font-dm-mono), "Courier New", monospace;
+  background: #1e1e1b;
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: #e8e6df;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+  display: block;
+}
+
+.ledger-input::placeholder {
+  color: #5e5c57;
+}
+
+.ledger-input:focus {
+  border-color: rgba(201, 149, 58, 0.45);
+}
+
+.ledger-input::-webkit-outer-spin-button,
+.ledger-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.ledger-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.ledger-btn-primary {
+  font-family: var(--font-dm-mono), "Courier New", monospace;
+  background: #c9953a;
+  color: #0f0f0d;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ledger-btn-primary:hover:not(:disabled) {
+  opacity: 0.82;
+}
+
+.ledger-btn-primary:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.ledger-btn-ghost {
+  font-family: var(--font-dm-mono), "Courier New", monospace;
+  background: transparent;
+  color: #9a9890;
+  border: 0.5px solid rgba(255, 255, 255, 0.13);
+  border-radius: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ledger-btn-ghost:hover:not(:disabled) {
+  color: #e8e6df;
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.ledger-btn-ghost:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+.ledger-progress-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.ledger-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ledger-progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 2px;
+  animation: ledger-shimmer 2.8s ease-in-out infinite;
+}
+
+.ledger-divider {
+  height: 0.5px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  margin: 0;
+}
+
+/* ─── Responsive layout helpers ─────────────────────────── */
+
+/* Period + Overview row: side-by-side on ≥560px, stacked below */
+.ledger-responsive-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.ledger-period-card,
+.ledger-overview-card {
+  width: 100%;
+}
+
+@media (min-width: 560px) {
+  .ledger-responsive-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+  }
+
+  .ledger-period-card {
+    min-width: 0;
+  }
+
+  .ledger-overview-card {
+    width: 220px;
+  }
+}
+
+/* Add Item row: stacked on mobile, inline on ≥560px */
+.ledger-add-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ledger-add-name,
+.ledger-add-budget,
+.ledger-add-action {
+  width: 100%;
+}
+
+@media (min-width: 560px) {
+  .ledger-add-row {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .ledger-add-name {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ledger-add-budget {
+    flex: 0 0 140px;
+  }
+
+  .ledger-add-action {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .ledger-add-action button {
+    white-space: nowrap;
+  }
+}

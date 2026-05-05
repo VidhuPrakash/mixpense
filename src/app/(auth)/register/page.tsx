@@ -2,11 +2,70 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { authClient } from "../../../../lib/auth-client";
-import { Eye, EyeOff, Mail, Lock, User2 } from "lucide-react";
+
+const mono: React.CSSProperties = {
+  fontFamily: "var(--font-dm-mono), 'Courier New', monospace",
+};
+const display: React.CSSProperties = {
+  fontFamily: "var(--font-fraunces), Georgia, serif",
+};
+
+function PasswordStrengthBar({ score }: { score: number }) {
+  const color = score >= 80 ? "#6b9e6b" : score >= 55 ? "#c9953a" : "#c0473a";
+  return (
+    <div
+      style={{
+        height: 3,
+        background: "#1e1e1b",
+        borderRadius: 2,
+        overflow: "hidden",
+        marginTop: 8,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${score}%`,
+          background: color,
+          borderRadius: 2,
+          transition: "width 0.2s ease, background 0.2s ease",
+        }}
+      />
+    </div>
+  );
+}
+
+function ShowHideBtn({
+  show,
+  onToggle,
+}: {
+  show: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={show ? "Hide password" : "Show password"}
+      style={{
+        position: "absolute",
+        right: 12,
+        top: "50%",
+        transform: "translateY(-50%)",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+        color: "#5e5c57",
+      }}
+    >
+      <span style={{ ...mono, fontSize: 9, letterSpacing: "0.1em" }}>
+        {show ? "HIDE" : "SHOW"}
+      </span>
+    </button>
+  );
+}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -40,6 +99,9 @@ export default function SignupPage() {
             ? "Weak"
             : "";
 
+  const strengthColor =
+    pwdScore >= 80 ? "#6b9e6b" : pwdScore >= 55 ? "#c9953a" : "#c0473a";
+
   const mismatch = cpwd.length > 0 && pwd !== cpwd;
 
   async function onSubmit(e: React.FormEvent) {
@@ -65,174 +127,209 @@ export default function SignupPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
+      className="ledger-page"
       style={{
-        background:
-          "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "48px 20px",
       }}
     >
-      <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
-        <CardHeader>
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">
-              Create account
-            </h1>
-            <p className="text-sm text-white/60">
-              Dark neon mode for a crisp, focused experience
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="text-sm font-medium text-white/80"
-              >
-                Full name
-              </label>
-              <div className="relative">
-                <Input
-                  id="name"
-                  placeholder="Jane Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <User2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-              </div>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        {/* ── HEADER ── */}
+        <div
+          className="ledger-slide-down"
+          style={{ textAlign: "center", paddingBottom: 12 }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 10 }}>
+            Mixpense
+          </p>
+          <h1
+            style={{
+              ...display,
+              fontSize: 36,
+              fontWeight: 500,
+              color: "#e8e6df",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              margin: "0 0 10px",
+            }}
+          >
+            Create your
+            <br />
+            account.
+          </h1>
+        </div>
+
+        {/* ── FORM CARD ── */}
+        <div
+          className="ledger-fade-up ledger-card"
+          style={{ padding: "28px 28px", animationDelay: "0.08s" }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 22 }}>
+            Register
+          </p>
+          <form
+            onSubmit={onSubmit}
+            style={{ display: "flex", flexDirection: "column", gap: 14 }}
+          >
+            {/* Name */}
+            <div>
+              <p className="ledger-label" style={{ marginBottom: 6 }}>
+                Full Name
+              </p>
+              <input
+                className="ledger-input"
+                style={{ width: "100%", padding: "10px 12px" }}
+                placeholder="Jane Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                autoComplete="name"
+                required
+              />
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-white/80"
-              >
+            {/* Email */}
+            <div>
+              <p className="ledger-label" style={{ marginBottom: 6 }}>
                 Email
-              </label>
-              <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="jane@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-              </div>
+              </p>
+              <input
+                type="email"
+                className="ledger-input"
+                style={{ width: "100%", padding: "10px 12px" }}
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-white/80"
-              >
+            {/* Password */}
+            <div>
+              <p className="ledger-label" style={{ marginBottom: 6 }}>
                 Password
-              </label>
-              <div className="relative">
-                <Input
+              </p>
+              <div style={{ position: "relative" }}>
+                <input
                   type={showPwd ? "text" : "password"}
+                  className="ledger-input"
+                  style={{ width: "100%", padding: "10px 52px 10px 12px" }}
                   placeholder="Create a strong password"
                   value={pwd}
                   onChange={(e) => setPwd(e.target.value)}
-                  className="pl-9 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
+                  autoComplete="new-password"
+                  required
                 />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-                <button
-                  type="button"
-                  aria-label={showPwd ? "Hide password" : "Show password"}
-                  onClick={() => setShowPwd((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-1 text-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
-                >
-                  {showPwd ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                </button>
+                <ShowHideBtn
+                  show={showPwd}
+                  onToggle={() => setShowPwd((s) => !s)}
+                />
               </div>
-              {!!pwd && (
-                <div className="mt-1 flex items-center justify-between text-xs">
-                  <span className="text-white/60">{strength}</span>
-                  <span
-                    className={
-                      pwdScore >= 80
-                        ? "text-emerald-400"
-                        : pwdScore >= 55
-                          ? "text-amber-400"
-                          : "text-rose-400"
-                    }
+              {pwd && (
+                <>
+                  <PasswordStrengthBar score={pwdScore} />
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginTop: 5,
+                    }}
                   >
-                    {pwdScore}%
-                  </span>
-                </div>
+                    <p
+                      className="ledger-label"
+                      style={{ color: strengthColor }}
+                    >
+                      {strength}
+                    </p>
+                    <p
+                      className="ledger-label"
+                      style={{ color: strengthColor }}
+                    >
+                      {pwdScore}%
+                    </p>
+                  </div>
+                </>
               )}
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="cPass"
-                className="text-sm font-medium text-white/80"
-              >
-                Confirm password
-              </label>
-              <div className="relative">
-                <Input
-                  id="cPass"
+            {/* Confirm Password */}
+            <div>
+              <p className="ledger-label" style={{ marginBottom: 6 }}>
+                Confirm Password
+              </p>
+              <div style={{ position: "relative" }}>
+                <input
                   type={showCpwd ? "text" : "password"}
+                  className="ledger-input"
+                  style={{
+                    width: "100%",
+                    padding: "10px 52px 10px 12px",
+                    borderColor: mismatch ? "rgba(192,71,58,0.5)" : undefined,
+                  }}
                   placeholder="Re-type password"
                   value={cpwd}
                   onChange={(e) => setCpwd(e.target.value)}
-                  className={`pl-9 pr-10 bg-white/5 text-white placeholder:text-white/40 focus:border-cyan-400/50 ${
-                    mismatch ? "border-rose-500/60" : "border-white/10"
-                  }`}
+                  autoComplete="new-password"
+                  required
                 />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-                <button
-                  type="button"
-                  aria-label={showCpwd ? "Hide password" : "Show password"}
-                  onClick={() => setShowCpwd((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-1 text-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
-                >
-                  {showCpwd ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                </button>
+                <ShowHideBtn
+                  show={showCpwd}
+                  onToggle={() => setShowCpwd((s) => !s)}
+                />
               </div>
               {mismatch && (
-                <p className="text-xs text-rose-400">Passwords do not match</p>
+                <p
+                  style={{
+                    ...mono,
+                    fontSize: 10,
+                    color: "#c0473a",
+                    marginTop: 5,
+                  }}
+                >
+                  Passwords do not match
+                </p>
               )}
             </div>
 
-            {err && <div className="text-sm text-rose-400">{err}</div>}
+            {err && (
+              <p style={{ ...mono, fontSize: 11, color: "#c0473a" }}>{err}</p>
+            )}
 
-            <Button
+            <button
               type="submit"
-              className="w-full bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium shadow-[0_0_25px_rgba(34,211,238,0.35)]"
+              className="ledger-btn-primary"
+              style={{ width: "100%", padding: "12px", marginTop: 2 }}
               disabled={loading || !name || !email || !pwd || !cpwd || mismatch}
             >
-              {loading ? "Creating..." : "Create account"}
-            </Button>
-
-            <p className="text-xs text-white/50 text-center">
-              By continuing, you agree to the Terms and Privacy Policy
-            </p>
-
-            <p className="text-xs text-white/50 text-center">
-              Already have an account?{" "}
-              <Link
-                href="/"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
-              >
-                Sign in
-              </Link>
-            </p>
+              {loading ? "Creating account…" : "Create Account"}
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* ── LOGIN LINK ── */}
+        <div
+          className="ledger-fade-up"
+          style={{ textAlign: "center", animationDelay: "0.16s" }}
+        >
+          <p style={{ ...mono, fontSize: 11, color: "#5e5c57" }}>
+            Already have an account?{" "}
+            <Link href="/" style={{ color: "#c9953a", textDecoration: "none" }}>
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

@@ -22,5 +22,10 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      // TODO: integrate a real email provider (e.g. Resend, Nodemailer)
+      // For now, log the reset URL so you can test locally
+      console.log(`[reset-password] user=${user.email} url=${url}`);
+    },
   },
 });

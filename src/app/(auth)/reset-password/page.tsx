@@ -2,11 +2,70 @@
 import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { authClient } from "../../../../lib/auth-client";
-import { Eye, EyeOff, Lock } from "lucide-react";
+
+const mono: React.CSSProperties = {
+  fontFamily: "var(--font-dm-mono), 'Courier New', monospace",
+};
+const display: React.CSSProperties = {
+  fontFamily: "var(--font-fraunces), Georgia, serif",
+};
+
+function PasswordStrengthBar({ score }: { score: number }) {
+  const color = score >= 80 ? "#6b9e6b" : score >= 55 ? "#c9953a" : "#c0473a";
+  return (
+    <div
+      style={{
+        height: 3,
+        background: "#1e1e1b",
+        borderRadius: 2,
+        overflow: "hidden",
+        marginTop: 8,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${score}%`,
+          background: color,
+          borderRadius: 2,
+          transition: "width 0.2s ease, background 0.2s ease",
+        }}
+      />
+    </div>
+  );
+}
+
+function ShowHideBtn({
+  show,
+  onToggle,
+}: {
+  show: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={show ? "Hide password" : "Show password"}
+      style={{
+        position: "absolute",
+        right: 12,
+        top: "50%",
+        transform: "translateY(-50%)",
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        padding: 0,
+        color: "#5e5c57",
+      }}
+    >
+      <span style={{ ...mono, fontSize: 9, letterSpacing: "0.1em" }}>
+        {show ? "HIDE" : "SHOW"}
+      </span>
+    </button>
+  );
+}
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -41,6 +100,9 @@ function ResetPasswordForm() {
             ? "Weak"
             : "";
 
+  const strengthColor =
+    pwdScore >= 80 ? "#6b9e6b" : pwdScore >= 55 ? "#c9953a" : "#c0473a";
+
   const mismatch = cpwd.length > 0 && pwd !== cpwd;
 
   async function onSubmit(e: React.FormEvent) {
@@ -67,163 +129,216 @@ function ResetPasswordForm() {
     router.replace("/");
   }
 
-  if (!token) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
-        style={{
-          background:
-            "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
-        }}
-      >
-        <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
-          <CardContent className="pt-6 space-y-4 text-center">
-            <p className="text-sm text-rose-400">
-              Invalid or expired reset link.
-            </p>
-            <Link
-              href="/forgot-password"
-              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
-            >
-              Request a new one
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
+  const pageContent = (
     <div
-      className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
+      className="ledger-page"
       style={{
-        background:
-          "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vh",
+        padding: "48px 20px",
       }}
     >
-      <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
-        <CardHeader>
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">
-              Reset password
-            </h1>
-            <p className="text-sm text-white/60">Choose a new password</p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label
-                htmlFor="newPassword"
-                className="text-sm font-medium text-white/80"
+      <div
+        style={{
+          width: "100%",
+          maxWidth: 400,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
+        {/* ── HEADER ── */}
+        <div
+          className="ledger-slide-down"
+          style={{ textAlign: "center", paddingBottom: 12 }}
+        >
+          <p className="ledger-label" style={{ marginBottom: 10 }}>
+            Mixpense
+          </p>
+          <h1
+            style={{
+              ...display,
+              fontSize: 36,
+              fontWeight: 500,
+              color: "#e8e6df",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.05,
+              margin: "0 0 10px",
+            }}
+          >
+            Choose a new
+            <br />
+            password.
+          </h1>
+        </div>
+
+        {/* ── CARD ── */}
+        <div
+          className="ledger-fade-up ledger-card"
+          style={{ padding: "28px 28px", animationDelay: "0.08s" }}
+        >
+          {!token ? (
+            <div style={{ textAlign: "center" }}>
+              <p className="ledger-label" style={{ marginBottom: 16 }}>
+                Invalid Link
+              </p>
+              <p
+                style={{
+                  ...mono,
+                  fontSize: 11,
+                  color: "#c0473a",
+                  marginBottom: 20,
+                }}
               >
-                New password
-              </label>
-              <div className="relative">
-                <Input
-                  type={showPwd ? "text" : "password"}
-                  placeholder="Create a strong password"
-                  value={pwd}
-                  onChange={(e) => setPwd(e.target.value)}
-                  className="pl-9 pr-10 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-                <button
-                  type="button"
-                  aria-label={showPwd ? "Hide password" : "Show password"}
-                  onClick={() => setShowPwd((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-1 text-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
-                >
-                  {showPwd ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                </button>
-              </div>
-              {!!pwd && (
-                <div className="mt-1 flex items-center justify-between text-xs">
-                  <span className="text-white/60">{strength}</span>
-                  <span
-                    className={
-                      pwdScore >= 80
-                        ? "text-emerald-400"
-                        : pwdScore >= 55
-                          ? "text-amber-400"
-                          : "text-rose-400"
-                    }
-                  >
-                    {pwdScore}%
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="cPass"
-                className="text-sm font-medium text-white/80"
-              >
-                Confirm password
-              </label>
-              <div className="relative">
-                <Input
-                  type={showCpwd ? "text" : "password"}
-                  placeholder="Re-type password"
-                  value={cpwd}
-                  onChange={(e) => setCpwd(e.target.value)}
-                  className={`pl-9 pr-10 bg-white/5 text-white placeholder:text-white/40 focus:border-cyan-400/50 ${
-                    mismatch ? "border-rose-500/60" : "border-white/10"
-                  }`}
-                />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-                <button
-                  type="button"
-                  aria-label={showCpwd ? "Hide password" : "Show password"}
-                  onClick={() => setShowCpwd((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md p-1 text-white/60 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/50"
-                >
-                  {showCpwd ? (
-                    <EyeOff className="size-4" />
-                  ) : (
-                    <Eye className="size-4" />
-                  )}
-                </button>
-              </div>
-              {mismatch && (
-                <p className="text-xs text-rose-400">Passwords do not match</p>
-              )}
-            </div>
-
-            {err && <div className="text-sm text-rose-400">{err}</div>}
-
-            <Button
-              type="submit"
-              className="w-full bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium shadow-[0_0_25px_rgba(34,211,238,0.35)]"
-              disabled={loading || !pwd || !cpwd || mismatch}
-            >
-              {loading ? "Resetting..." : "Reset password"}
-            </Button>
-
-            <p className="text-xs text-white/50 text-center">
+                This reset link is invalid or has expired.
+              </p>
               <Link
-                href="/"
-                className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                href="/forgot-password"
+                style={{
+                  ...mono,
+                  fontSize: 10,
+                  color: "#c9953a",
+                  textDecoration: "none",
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                }}
               >
-                Back to sign in
+                Request a New Link
               </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+            </div>
+          ) : (
+            <>
+              <p className="ledger-label" style={{ marginBottom: 22 }}>
+                New Password
+              </p>
+              <form
+                onSubmit={onSubmit}
+                style={{ display: "flex", flexDirection: "column", gap: 14 }}
+              >
+                {/* New password */}
+                <div>
+                  <p className="ledger-label" style={{ marginBottom: 6 }}>
+                    Password
+                  </p>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPwd ? "text" : "password"}
+                      className="ledger-input"
+                      style={{ width: "100%", padding: "10px 52px 10px 12px" }}
+                      placeholder="Create a strong password"
+                      value={pwd}
+                      onChange={(e) => setPwd(e.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <ShowHideBtn
+                      show={showPwd}
+                      onToggle={() => setShowPwd((s) => !s)}
+                    />
+                  </div>
+                  {pwd && (
+                    <>
+                      <PasswordStrengthBar score={pwdScore} />
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          marginTop: 5,
+                        }}
+                      >
+                        <p
+                          className="ledger-label"
+                          style={{ color: strengthColor }}
+                        >
+                          {strength}
+                        </p>
+                        <p
+                          className="ledger-label"
+                          style={{ color: strengthColor }}
+                        >
+                          {pwdScore}%
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Confirm */}
+                <div>
+                  <p className="ledger-label" style={{ marginBottom: 6 }}>
+                    Confirm Password
+                  </p>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showCpwd ? "text" : "password"}
+                      className="ledger-input"
+                      style={{
+                        width: "100%",
+                        padding: "10px 52px 10px 12px",
+                        borderColor: mismatch
+                          ? "rgba(192,71,58,0.5)"
+                          : undefined,
+                      }}
+                      placeholder="Re-type password"
+                      value={cpwd}
+                      onChange={(e) => setCpwd(e.target.value)}
+                      autoComplete="new-password"
+                      required
+                    />
+                    <ShowHideBtn
+                      show={showCpwd}
+                      onToggle={() => setShowCpwd((s) => !s)}
+                    />
+                  </div>
+                  {mismatch && (
+                    <p
+                      style={{
+                        ...mono,
+                        fontSize: 10,
+                        color: "#c0473a",
+                        marginTop: 5,
+                      }}
+                    >
+                      Passwords do not match
+                    </p>
+                  )}
+                </div>
+
+                {err && (
+                  <p style={{ ...mono, fontSize: 11, color: "#c0473a" }}>
+                    {err}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  className="ledger-btn-primary"
+                  style={{ width: "100%", padding: "12px", marginTop: 2 }}
+                  disabled={loading || !pwd || !cpwd || mismatch}
+                >
+                  {loading ? "Resetting…" : "Reset Password"}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+
+        {/* ── BACK LINK ── */}
+        <div
+          className="ledger-fade-up"
+          style={{ textAlign: "center", animationDelay: "0.16s" }}
+        >
+          <p style={{ ...mono, fontSize: 11, color: "#5e5c57" }}>
+            <Link href="/" style={{ color: "#c9953a", textDecoration: "none" }}>
+              Back to Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
 
-export default function ResetPasswordPage() {
-  return (
-    <Suspense>
-      <ResetPasswordForm />
-    </Suspense>
-  );
+  return pageContent;
 }

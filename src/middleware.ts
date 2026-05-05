@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { auth } from "../lib/auth-server";
 
-const PUBLIC_PATHS = ["/", "/register", "/login"];
+const PUBLIC_PATHS = ["/", "/register", "/forgot-password", "/reset-password"];
 
 export const runtime = "nodejs";
 
@@ -22,13 +22,13 @@ export async function middleware(request: NextRequest) {
     const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     return NextResponse.next();
   } catch (error) {
     console.error("Auth check failed:", error);
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
 }
 
