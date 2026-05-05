@@ -34,7 +34,7 @@ mainRouter.post(
     z.object({
       name: z.string(),
       budgetAmount: z.number().int().optional(),
-    })
+    }),
   ),
   async (c) => {
     const { name, budgetAmount } = c.req.valid("json");
@@ -58,7 +58,7 @@ mainRouter.post(
     }
 
     return c.json(newItem);
-  }
+  },
 );
 
 mainRouter.post(
@@ -68,12 +68,22 @@ mainRouter.post(
     z.object({
       name: z.string(),
       amount: z.number().int(),
-    })
+    }),
   ),
   async (c) => {
     const itemId = c.req.param("itemId");
     const { name, amount } = c.req.valid("json");
     const user = c.get("user");
+
+    const [existingItem] = await db
+      .select()
+      .from(item)
+      .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
+      .limit(1);
+
+    if (!existingItem) {
+      return c.json({ error: "Item not found" }, 404);
+    }
 
     const [newBudget] = await db
       .insert(budget)
@@ -86,7 +96,7 @@ mainRouter.post(
       .returning();
 
     return c.json(newBudget);
-  }
+  },
 );
 
 mainRouter.post(
@@ -95,43 +105,33 @@ mainRouter.post(
     "json",
     z.object({
       amount: z.number().int(),
-    })
+    }),
   ),
   async (c) => {
     const itemId = c.req.param("itemId");
     const { amount } = c.req.valid("json");
+    const user = c.get("user");
 
-    const [earlyExpense] = await db
+    const [existingItem] = await db
       .select()
-      .from(expense)
-      .where(eq(expense.itemId, itemId))
+      .from(item)
+      .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
       .limit(1);
 
-    let newExpense;
-
-    if (earlyExpense) {
-      const [updatedExpense] = await db
-        .update(expense)
-        .set({
-          amount: earlyExpense.amount + amount,
-          updatedAt: new Date().toISOString(),
-        })
-        .where(eq(expense.id, earlyExpense.id))
-        .returning();
-
-      newExpense = updatedExpense;
-    } else {
-      [newExpense] = await db
-        .insert(expense)
-        .values({
-          itemId,
-          amount,
-        })
-        .returning();
+    if (!existingItem) {
+      return c.json({ error: "Item not found" }, 404);
     }
 
+    const [newExpense] = await db
+      .insert(expense)
+      .values({
+        itemId,
+        amount,
+      })
+      .returning();
+
     return c.json(newExpense);
-  }
+  },
 );
 
 mainRouter.get("/:itemId/expenses/:year/:month", async (c) => {
@@ -145,7 +145,7 @@ mainRouter.get("/:itemId/expenses/:year/:month", async (c) => {
     0,
     23,
     59,
-    59
+    59,
   ).toISOString();
 
   const result = await db
@@ -158,17 +158,17 @@ mainRouter.get("/:itemId/expenses/:year/:month", async (c) => {
     .from(item)
     .leftJoin(
       budget,
-      and(eq(budget.itemId, item.id), eq(budget.userId, user.id))
+      and(eq(budget.itemId, item.id), eq(budget.userId, user.id)),
     )
-    .leftJoin(expense, eq(expense.itemId, item.id))
-    .where(
+    .leftJoin(
+      expense,
       and(
-        eq(item.id, itemId),
-        eq(item.userId, user.id),
+        eq(expense.itemId, item.id),
         gte(expense.createdAt, start),
-        lte(expense.createdAt, end)
-      )
+        lte(expense.createdAt, end),
+      ),
     )
+    .where(and(eq(item.id, itemId), eq(item.userId, user.id)))
     .groupBy(item.id, item.name, budget.amount);
 
   return c.json(
@@ -177,7 +177,7 @@ mainRouter.get("/:itemId/expenses/:year/:month", async (c) => {
       itemName: null,
       expectedBudget: 0,
       totalSpent: 0,
-    }
+    },
   );
 });
 
@@ -210,7 +210,7 @@ mainRouter.get("/summary", async (c) => {
       .from(item)
       .leftJoin(
         budget,
-        and(eq(budget.itemId, item.id), eq(budget.userId, user.id))
+        and(eq(budget.itemId, item.id), eq(budget.userId, user.id)),
       )
       .leftJoin(expense, eq(expense.itemId, item.id))
       .where(eq(item.userId, user.id))
@@ -228,7 +228,7 @@ mainRouter.get("/summary", async (c) => {
       })),
     });
   } catch (error) {
-    return c.json({ error: error, message: "Something went wrong." }, 404);
+    return c.json({ message: "Something went wrong." }, 500);
   }
 });
 

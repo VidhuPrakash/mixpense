@@ -6,6 +6,7 @@ import { auth } from "../lib/auth-server";
 
 const app = new OpenAPIHono();
 
+app.use("*", logger());
 app.use(
   "*",
   cors({
@@ -13,15 +14,10 @@ app.use(
     allowHeaders: ["Content-Type", "Authorization"],
     allowMethods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-  })
+  }),
 );
 app.on(["GET", "POST", "OPTIONS"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
 });
-app.use("*", logger());
 app.route("/api", apiRoutes);
-app.use("*", async (c, next) => {
-  console.log(`Incoming request: ${c.req.method} ${c.req.path}`);
-  await next();
-});
 export default app;

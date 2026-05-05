@@ -1,17 +1,18 @@
 "use client";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authClient } from "../../../../lib/auth-client";
-import { Eye, EyeOff, Mail, Lock, User2 } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 
-export default function SignupPage() {
+function ResetPasswordForm() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") ?? "";
+
   const [pwd, setPwd] = useState("");
   const [cpwd, setCpwd] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -45,22 +46,51 @@ export default function SignupPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErr(null);
+    if (!token) {
+      setErr("Invalid or missing reset token.");
+      return;
+    }
     if (mismatch) {
       setErr("Passwords do not match");
       return;
     }
     setLoading(true);
-    const { error } = await authClient.signUp.email({
-      name,
-      email,
-      password: pwd,
+    const { error } = await authClient.resetPassword({
+      newPassword: pwd,
+      token,
     });
     setLoading(false);
     if (error) {
-      setErr(error.message || "Sign up failed");
+      setErr(error.message || "Reset failed");
       return;
     }
-    router.replace("/items");
+    router.replace("/");
+  }
+
+  if (!token) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center p-6 bg-black text-white"
+        style={{
+          background:
+            "radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,0.12), transparent 60%), radial-gradient(1000px 500px at 120% 10%, rgba(168,85,247,0.12), transparent 60%)",
+        }}
+      >
+        <Card className="w-full max-w-sm bg-black/40 border-cyan-400/20 backdrop-blur-xl">
+          <CardContent className="pt-6 space-y-4 text-center">
+            <p className="text-sm text-rose-400">
+              Invalid or expired reset link.
+            </p>
+            <Link
+              href="/forgot-password"
+              className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              Request a new one
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -75,60 +105,19 @@ export default function SignupPage() {
         <CardHeader>
           <div className="space-y-1">
             <h1 className="text-xl font-semibold tracking-tight">
-              Create account
+              Reset password
             </h1>
-            <p className="text-sm text-white/60">
-              Dark neon mode for a crisp, focused experience
-            </p>
+            <p className="text-sm text-white/60">Choose a new password</p>
           </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
               <label
-                htmlFor="name"
+                htmlFor="newPassword"
                 className="text-sm font-medium text-white/80"
               >
-                Full name
-              </label>
-              <div className="relative">
-                <Input
-                  id="name"
-                  placeholder="Jane Doe"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <User2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-white/80"
-              >
-                Email
-              </label>
-              <div className="relative">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="jane@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-cyan-400/50"
-                />
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="text-sm font-medium text-white/80"
-              >
-                Password
+                New password
               </label>
               <div className="relative">
                 <Input
@@ -179,7 +168,6 @@ export default function SignupPage() {
               </label>
               <div className="relative">
                 <Input
-                  id="cPass"
                   type={showCpwd ? "text" : "password"}
                   placeholder="Re-type password"
                   value={cpwd}
@@ -212,27 +200,30 @@ export default function SignupPage() {
             <Button
               type="submit"
               className="w-full bg-cyan-500/90 hover:bg-cyan-400 text-black font-medium shadow-[0_0_25px_rgba(34,211,238,0.35)]"
-              disabled={loading || !name || !email || !pwd || !cpwd || mismatch}
+              disabled={loading || !pwd || !cpwd || mismatch}
             >
-              {loading ? "Creating..." : "Create account"}
+              {loading ? "Resetting..." : "Reset password"}
             </Button>
 
             <p className="text-xs text-white/50 text-center">
-              By continuing, you agree to the Terms and Privacy Policy
-            </p>
-
-            <p className="text-xs text-white/50 text-center">
-              Already have an account?{" "}
               <Link
                 href="/"
                 className="text-cyan-400 hover:text-cyan-300 transition-colors"
               >
-                Sign in
+                Back to sign in
               </Link>
             </p>
           </form>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
