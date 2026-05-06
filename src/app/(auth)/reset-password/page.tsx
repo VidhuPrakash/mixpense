@@ -342,3 +342,11 @@ function ResetPasswordForm() {
 
   return pageContent;
 }
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
