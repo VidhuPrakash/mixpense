@@ -66,8 +66,8 @@ export const metadata: Metadata = {
     "Money Manager alternative",
     "free alternative to Spendee",
   ],
-  authors: [{ name: "Mixpense" }],
-  creator: "Mixpense",
+  authors: [{ name: "Vidhu Prakash T P" }],
+  creator: "Vidhu Prakash T P",
   metadataBase: new URL("https://mixpense.vercel.app"),
   openGraph: {
     title: "Mixpense – Personal Expense Tracker",
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     siteName: "Mixpense",
     images: [
       {
-        url: "/android-chrome-512x512.png",
+        url: "/web-app-manifest-512x512.png",
         width: 512,
         height: 512,
         alt: "Mixpense logo",
@@ -91,21 +91,15 @@ export const metadata: Metadata = {
     title: "Mixpense – Personal Expense Tracker",
     description:
       "Track daily expenses, manage budgets, and stay on top of your finances with Mixpense — free for India.",
-    images: ["/android-chrome-512x512.png"],
+    images: ["/web-app-manifest-512x512.png"],
   },
   icons: {
     icon: [
       { url: "/favicon.ico" },
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-96x96.png", sizes: "96x96", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png" }],
-    other: [
-      {
-        rel: "manifest",
-        url: "/site.webmanifest",
-      },
-    ],
   },
 };
 
@@ -120,6 +114,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${dmMono.variable} antialiased`}
       >
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/sw.js'); }); }`,
+          }}
+        />
       </body>
     </html>
   );
