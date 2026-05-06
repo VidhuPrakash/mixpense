@@ -33,8 +33,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on actual app pages — never on static files or Next.js internals
-  matcher: [
-    "/((?!_next/static|_next/image|_next/webpack-hmr|favicon\\.ico|favicon\\.svg|favicon-96x96\\.png|apple-touch-icon\\.png|web-app-manifest-192x192\\.png|web-app-manifest-512x512\\.png|manifest\\.webmanifest|sw\\.js|logo\\.png|site\\.webmanifest).*)",
-  ],
+  // Only protect actual app routes — everything else (PWA, static files) is ignored
+  matcher: ["/items/:path*"],
 };
