@@ -1,4 +1,4 @@
-const CACHE_NAME = "mixpense-v1";
+const CACHE_NAME = "mixpense-v2";
 const STATIC_ASSETS = [
   "/",
   "/favicon.ico",
