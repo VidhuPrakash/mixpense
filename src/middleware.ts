@@ -6,16 +6,8 @@ const PUBLIC_PATHS = ["/", "/register", "/forgot-password", "/reset-password"];
 
 export const runtime = "nodejs";
 
-const STATIC_FILE_REGEX =
-  /\.(?:ico|svg|png|jpg|jpeg|webp|woff2?|ttf|otf|css|js|json|webmanifest|txt|xml)$/i;
-
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Pass through static assets and PWA files immediately
-  if (STATIC_FILE_REGEX.test(pathname)) {
-    return NextResponse.next();
-  }
 
   if (PUBLIC_PATHS.some((path) => pathname === path)) {
     return NextResponse.next();
@@ -41,5 +33,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image).*)"],
+  // Only run middleware on actual app pages — never on static files or Next.js internals
+  matcher: [
+    "/((?!_next/static|_next/image|_next/webpack-hmr|favicon\\.ico|favicon\\.svg|favicon-96x96\\.png|apple-touch-icon\\.png|web-app-manifest-192x192\\.png|web-app-manifest-512x512\\.png|manifest\\.webmanifest|sw\\.js|logo\\.png|site\\.webmanifest).*)",
+  ],
 };
