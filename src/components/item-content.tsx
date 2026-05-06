@@ -193,7 +193,7 @@ export function ItemsContent() {
     <div className="ledger-page">
       <div
         style={{
-          maxWidth: 860,
+          maxWidth: "auto",
           margin: "0 auto",
           padding: "40px 20px 72px",
           display: "flex",
